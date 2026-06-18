@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sniper Color Picker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="aplicacion">
+    <div id="contenedor-alcance">
+      <canvas id="canvas-alcance"></canvas>
+      <div id="interfaz-alcance">
+        <div id="info-zoom">
+          <span id="etiqueta-zoom">ZOOM</span>
+          <span id="valor-zoom">5.0x</span>
+        </div>
+        <div id="info-viento" class="info-superior">
+          <span id="texto-viento">Viento: 0 km/h →</span>
+        </div>
+        <div id="info-disparos" class="info-superior">
+          <span id="texto-disparos">Disparos: 0</span>
+        </div>
+      </div>
+    </div>
+    <div id="panel-lateral">
+      <div id="panel-color">
+        <h2 class="titulo-panel">COLOR SELECCIONADO</h2>
+        <div id="muestra-color">
+          <div id="interior-muestra"></div>
+          <div id="malla-muestra"></div>
+        </div>
+        <div id="info-acierto">
+          <span id="texto-acierto">Esperando disparo...</span>
+        </div>
+        <div class="grupo-color">
+          <span class="etiqueta-valor">HEX</span>
+          <span class="valor" id="valor-hex">???</span>
+          <button class="btn-copiar" data-tipo="hex" disabled>Copiar HEX</button>
+        </div>
+        <div class="grupo-color">
+          <span class="etiqueta-valor">RGB</span>
+          <span class="valor" id="valor-rgb">???</span>
+          <button class="btn-copiar" data-tipo="rgb" disabled>Copiar RGB</button>
+        </div>
+        <div class="grupo-color">
+          <span class="etiqueta-valor">HSL</span>
+          <span class="valor" id="valor-hsl">???</span>
+          <button class="btn-copiar" data-tipo="hsl" disabled>Copiar HSL</button>
+        </div>
+      </div>
+      <div id="panel-balistico">
+        <h2 class="titulo-panel">PANEL BALÍSTICO</h2>
+        <div class="fila-balistica">
+          <span class="etiqueta-balistica">Distancia</span>
+          <span class="valor-balistica" id="valor-distancia">1000m</span>
+        </div>
+        <div class="fila-balistica">
+          <span class="etiqueta-balistica">Viento</span>
+          <span class="valor-balistica" id="valor-viento">0 km/h →</span>
+        </div>
+        <div class="fila-balistica">
+          <span class="etiqueta-balistica">Elevación</span>
+          <span class="valor-balistica" id="valor-elevacion">+0.0°</span>
+        </div>
+        <div class="fila-balistica">
+          <span class="etiqueta-balistica">Horizontal</span>
+          <span class="valor-balistica" id="valor-horizontal">±0.0°</span>
+        </div>
+      </div>
+      <div id="panel-controles">
+        <h2 class="titulo-panel">CONTROLES</h2>
+        <table class="tabla-controles">
+          <tr><td class="tecla">Ratón</td><td>Mover mira</td></tr>
+          <tr><td class="tecla">Rueda</td><td>Zoom ±</td></tr>
+          <tr><td class="tecla">W / S</td><td>Elevación ↑↓</td></tr>
+          <tr><td class="tecla">A / D</td><td>Horizontal ←→</td></tr>
+          <tr><td class="tecla">Espacio</td><td>Disparar</td></tr>
+          <tr><td class="tecla">R</td><td>Limpiar impacto</td></tr>
+        </table>
+      </div>
+      <div id="pie-panel">
+        <span>Sniper Color Picker v1.0</span>
+        <span>Una herramienta de Adobe™</span>
+      </div>
+    </div>
+  </div>
+  <div id="notificacion-copiado">¡Copiado!</div>
+  <script src="app.js"></script>
+</body>
+</html>
