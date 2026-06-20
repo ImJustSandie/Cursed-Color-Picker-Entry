@@ -695,6 +695,8 @@
     if (color) {
       estado.colorSeleccionado = color;
       actualizarPanelColor(color);
+    } else if (formatoAcertado && estado.colorSeleccionado) {
+      actualizarPanelColor(estado.colorSeleccionado);
     } else {
       actualizarPanelSinColor();
     }
@@ -785,6 +787,7 @@
   }
 
   function actualizarPanelSinColor() {
+    estado.colorSeleccionado = null;
     elMuestra.style.background = '#000';
     elHex.textContent = '—';
     elRgb.textContent = '—';
