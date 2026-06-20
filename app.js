@@ -16,21 +16,20 @@
     RADIO_RUEDA: 240,         // radio en píxeles de la rueda cromática
     CENTRO_RUEDA: 256,        // centro de la rueda (TAMANO_RUEDA / 2)
     ZOOM_MIN: 1,
-    ZOOM_MAX: 25,
-    ZOOM_INICIAL: 5,
+    ZOOM_MAX: 6,
+    ZOOM_INICIAL: 1,
     DISTANCIA_FIJA: '1000m',
-    GRAVEDAD: 18,             // caída del proyectil en coordenadas de rueda
-    FACTOR_VIENTO: 2.5,       // multiplicador de velocidad de viento
-    FACTOR_AJUSTE: 0.4,       // escala de ajuste de elevación/horizontal (muy bajo para que sea casi imposible compensar)
+    GRAVEDAD_BASE: 115,       // valor base de gravedad (oscila ±35 simulando altitud)
+    FACTOR_VIENTO: 1.5,       // multiplicador de velocidad de viento
     DISPERSION: 6,            // dispersión aleatoria por disparo (píxeles en espacio de rueda)
     VELOCIDAD_ZOOM: 0.2,      // cambio de zoom por paso de rueda
-    INCREMENTO_AJUSTE: 0.2,   // cambio por pulsación de tecla
     RADIO_VIEWPORT: 0.42,     // fracción del canvas para el viewport circular
     DURACION_ANIMACION: 400,  // ms de duración de la animación de disparo
     INTERVALO_VIENTO_MIN: 2000,
     INTERVALO_VIENTO_MAX: 4000,
     VELOCIDAD_VIENTO_MIN: 5,
     VELOCIDAD_VIENTO_MAX: 35,
+    PERIODO_GRAVEDAD: 10000,  // ms para un ciclo completo de oscilación de gravedad
   };
 
   // ============================================================
@@ -44,14 +43,14 @@
 
     zoom: CONST.ZOOM_INICIAL,
 
-    // Ajustes balísticos (se modifican con W/S y A/D)
-    ajusteElevacion: 0,
-    ajusteHorizontal: 0,
-
     // Estado del viento
     velocidadViento: 0,
     direccionViento: 1, // 1 = derecha, -1 = izquierda
     vientoTexto: '0 km/h',
+
+    // Gravedad variable (simula altitud)
+    gravedadActual: CONST.GRAVEDAD_BASE,
+    tiempoInicio: 0,
 
     // Último disparo
     haDisparado: false,
@@ -97,8 +96,7 @@
   const elRgb = document.getElementById('valor-rgb');
   const elHsl = document.getElementById('valor-hsl');
   const elVientoValor = document.getElementById('valor-viento');
-  const elElevacion = document.getElementById('valor-elevacion');
-  const elHorizontal = document.getElementById('valor-horizontal');
+  const elGravedad = document.getElementById('valor-gravedad');
   const notif = document.getElementById('notificacion-copiado');
 
   // ============================================================
@@ -296,19 +294,22 @@
     }, intervalo);
   }
 
+  function actualizarGravedad() {
+    const ahora = performance.now();
+    const transcurrido = ahora - estado.tiempoInicio;
+    const fase = (transcurrido % CONST.PERIODO_GRAVEDAD) / CONST.PERIODO_GRAVEDAD;
+    const oscilacion = Math.sin(fase * Math.PI * 2);
+    estado.gravedadActual = Math.round(CONST.GRAVEDAD_BASE + oscilacion * 35);
+  }
+
   function calcularPuntoImpacto() {
     const desvViento = estado.velocidadViento * estado.direccionViento * CONST.FACTOR_VIENTO;
-    const desvGravedad = CONST.GRAVEDAD;
+    const desvGravedad = estado.gravedadActual;
 
-    // El ajuste del usuario es deliberadamente menos efectivo que las fuerzas naturales
-    const compHorizontal = estado.ajusteHorizontal * CONST.FACTOR_AJUSTE;
-    const compElevacion = estado.ajusteElevacion * CONST.FACTOR_AJUSTE;
-
-    // Dispersión aleatoria: cada disparo tiene un pequeño error impredecible
     const dispersion = (Math.random() - 0.5) * 2 * CONST.DISPERSION;
 
-    const ix = estado.posicionX + desvViento - compHorizontal + dispersion;
-    const iy = estado.posicionY + desvGravedad - compElevacion + dispersion;
+    const ix = estado.posicionX + desvViento + dispersion;
+    const iy = estado.posicionY + desvGravedad + dispersion;
 
     return {
       x: Math.max(0, Math.min(CONST.TAMANO_RUEDA - 1, ix)),
@@ -328,12 +329,18 @@
     const sep = 60;
     const baseY = 500;
     return [
-      { id: 'hex', label: 'HEX',
-        x: 256 - sep, y: baseY, w: 50, h: 24 },
-      { id: 'rgb', label: 'RGB',
-        x: 256, y: baseY, w: 50, h: 24 },
-      { id: 'hsl', label: 'HSL',
-        x: 256 + sep, y: baseY, w: 50, h: 24 },
+      {
+        id: 'hex', label: 'HEX',
+        x: 256 - sep, y: baseY, w: 50, h: 24
+      },
+      {
+        id: 'rgb', label: 'RGB',
+        x: 256, y: baseY, w: 50, h: 24
+      },
+      {
+        id: 'hsl', label: 'HSL',
+        x: 256 + sep, y: baseY, w: 50, h: 24
+      },
     ];
   }
 
@@ -395,13 +402,13 @@
         radioViewport * 2, radioViewport * 2
       );
 
-        // Impactos anteriores (marcas)
+      // Impactos anteriores (marcas)
       if (estado.impactoVisible && estado.impactoX !== null) {
         const px = centroX + (estado.impactoX - estado.posicionX) * estado.zoom;
         const py = centroY + (estado.impactoY - estado.posicionY) * estado.zoom;
 
         if (px >= centroX - radioViewport && px <= centroX + radioViewport &&
-            py >= centroY - radioViewport && py <= centroY + radioViewport) {
+          py >= centroY - radioViewport && py <= centroY + radioViewport) {
           ctx.beginPath();
           ctx.arc(px, py, 5, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
@@ -620,22 +627,6 @@
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Indicador de elevación (línea horizontal desplazada verticalmente)
-    const offsetElev = estado.ajusteElevacion * 2;
-    if (Math.abs(offsetElev) > 0.5) {
-      const lineaY = cy + offsetElev;
-      if (Math.abs(lineaY - cy) < r * 0.6) {
-        ctx.strokeStyle = 'rgba(0, 200, 255, 0.12)';
-        ctx.lineWidth = 0.5;
-        ctx.setLineDash([2, 4]);
-        ctx.beginPath();
-        ctx.moveTo(cx - r * 0.3, lineaY);
-        ctx.lineTo(cx + r * 0.3, lineaY);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-    }
-
     ctx.restore();
   }
 
@@ -689,7 +680,7 @@
     for (const btn of botones) {
       const hw = btn.w / 2, hh = btn.h / 2;
       if (impacto.x >= btn.x - hw && impacto.x <= btn.x + hw &&
-          impacto.y >= btn.y - hh && impacto.y <= btn.y + hh) {
+        impacto.y >= btn.y - hh && impacto.y <= btn.y + hh) {
         formatoAcertado = btn.id;
         break;
       }
@@ -780,8 +771,8 @@
 
     const formatoNombres = { hex: 'HEX', rgb: 'RGB', hsl: 'HSL' };
     const todosDesbloqueados = !estado.formatosBloqueados.hex &&
-                               !estado.formatosBloqueados.rgb &&
-                               !estado.formatosBloqueados.hsl;
+      !estado.formatosBloqueados.rgb &&
+      !estado.formatosBloqueados.hsl;
     if (todosDesbloqueados) {
       elAcierto.textContent = `✓ Todos los formatos — (${Math.round(estado.impactoX - CONST.CENTRO_RUEDA)}, ${Math.round(estado.impactoY - CONST.CENTRO_RUEDA)})`;
       elAcierto.style.color = '#0f0';
@@ -808,10 +799,7 @@
   function actualizarPanelBalistica() {
     elViento.textContent = estado.vientoTexto;
     elVientoValor.textContent = estado.vientoTexto;
-    const signoElev = estado.ajusteElevacion >= 0 ? '+' : '';
-    elElevacion.textContent = `${signoElev}${estado.ajusteElevacion.toFixed(1)}°`;
-    const signoHor = estado.ajusteHorizontal >= 0 ? '+' : '';
-    elHorizontal.textContent = `${signoHor}${estado.ajusteHorizontal.toFixed(1)}°`;
+    elGravedad.textContent = estado.gravedadActual.toFixed(0);
     elZoom.textContent = estado.zoom.toFixed(1) + 'x';
   }
 
@@ -892,13 +880,18 @@
   // ============================================================
 
   function configurarControles() {
-    // Ratón — mover mira
+    // Ratón — mover mira / disparar
     canvas.addEventListener('mousemove', (e) => {
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
       estado.mouseX = mx;
       estado.mouseY = my;
+    });
+
+    canvas.addEventListener('click', (e) => {
+      e.preventDefault();
+      disparar();
     });
 
     // Rueda — zoom
@@ -912,11 +905,9 @@
       elZoom.textContent = estado.zoom.toFixed(1) + 'x';
     }, { passive: false });
 
-    // Teclado — teclas que se mantienen pulsadas
-    const teclasPulsadas = {};
+    // Teclado
     document.addEventListener('keydown', (e) => {
       const tecla = e.key.toLowerCase();
-      teclasPulsadas[tecla] = true;
 
       if (tecla === ' ') {
         e.preventDefault();
@@ -925,32 +916,6 @@
         limpiarImpacto();
       }
     });
-    document.addEventListener('keyup', (e) => {
-      teclasPulsadas[e.key.toLowerCase()] = false;
-    });
-
-    // Bucle de repetición para teclas mantenidas (W/S/A/D)
-    function aplicarAjusteBalistico() {
-      let cambio = false;
-      if (teclasPulsadas['w']) {
-        estado.ajusteElevacion = Math.min(15, estado.ajusteElevacion + CONST.INCREMENTO_AJUSTE * 0.4);
-        cambio = true;
-      }
-      if (teclasPulsadas['s']) {
-        estado.ajusteElevacion = Math.max(-15, estado.ajusteElevacion - CONST.INCREMENTO_AJUSTE * 0.4);
-        cambio = true;
-      }
-      if (teclasPulsadas['a']) {
-        estado.ajusteHorizontal = Math.max(-15, estado.ajusteHorizontal - CONST.INCREMENTO_AJUSTE * 0.4);
-        cambio = true;
-      }
-      if (teclasPulsadas['d']) {
-        estado.ajusteHorizontal = Math.min(15, estado.ajusteHorizontal + CONST.INCREMENTO_AJUSTE * 0.4);
-        cambio = true;
-      }
-      if (cambio) actualizarPanelBalistica();
-    }
-    setInterval(aplicarAjusteBalistico, 50);
 
     // Botones de copiar
     document.querySelectorAll('.btn-copiar').forEach(btn => {
@@ -1003,6 +968,7 @@
 
   function buclePrincipal() {
     actualizarPaneoPorRaton();
+    actualizarGravedad();
     actualizarAnimaciones();
     dibujarEscena();
     actualizarPanelBalistica();
@@ -1022,6 +988,9 @@
     recalcularViento();
     programarCambioViento();
     configurarControles();
+
+    estado.tiempoInicio = performance.now();
+    actualizarGravedad();
 
     estado.posicionX = CONST.CENTRO_RUEDA;
     estado.posicionY = CONST.CENTRO_RUEDA;
