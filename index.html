@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,71 +16,71 @@
           <span id="valor-zoom">5.0x</span>
         </div>
         <div id="info-viento" class="info-superior">
-          <span id="texto-viento">Viento: 0 km/h →</span>
+          <span id="texto-viento">Wind: 0 km/h →</span>
         </div>
         <div id="info-disparos" class="info-superior">
-          <span id="texto-disparos">Disparos: 0</span>
+          <span id="texto-disparos">Shots: 0</span>
         </div>
       </div>
     </div>
     <div id="panel-lateral">
       <div id="panel-color">
-        <h2 class="titulo-panel">COLOR SELECCIONADO</h2>
+        <h2 class="titulo-panel">SELECTED COLOR</h2>
         <div id="muestra-color">
           <div id="interior-muestra"></div>
           <div id="malla-muestra"></div>
         </div>
         <div id="info-acierto">
-          <span id="texto-acierto">Esperando disparo...</span>
+          <span id="texto-acierto">Waiting for shot...</span>
         </div>
         <div class="grupo-color">
           <span class="etiqueta-valor">HEX</span>
           <span class="valor" id="valor-hex">???</span>
-          <button class="btn-copiar" data-tipo="hex" disabled>Copiar HEX</button>
+          <button class="btn-copiar" data-tipo="hex" disabled>Copy HEX</button>
         </div>
         <div class="grupo-color">
           <span class="etiqueta-valor">RGB</span>
           <span class="valor" id="valor-rgb">???</span>
-          <button class="btn-copiar" data-tipo="rgb" disabled>Copiar RGB</button>
+          <button class="btn-copiar" data-tipo="rgb" disabled>Copy RGB</button>
         </div>
         <div class="grupo-color">
           <span class="etiqueta-valor">HSL</span>
           <span class="valor" id="valor-hsl">???</span>
-          <button class="btn-copiar" data-tipo="hsl" disabled>Copiar HSL</button>
+          <button class="btn-copiar" data-tipo="hsl" disabled>Copy HSL</button>
         </div>
       </div>
       <div id="panel-balistico">
-        <h2 class="titulo-panel">PANEL BALÍSTICO</h2>
+        <h2 class="titulo-panel">BALLISTIC PANEL</h2>
         <div class="fila-balistica">
-          <span class="etiqueta-balistica">Distancia</span>
+          <span class="etiqueta-balistica">Distance</span>
           <span class="valor-balistica" id="valor-distancia">1000m</span>
         </div>
         <div class="fila-balistica">
-          <span class="etiqueta-balistica">Viento</span>
+          <span class="etiqueta-balistica">Wind</span>
           <span class="valor-balistica" id="valor-viento">0 km/h →</span>
         </div>
         <div class="fila-balistica">
-          <span class="etiqueta-balistica">Gravedad</span>
+          <span class="etiqueta-balistica">Gravity</span>
           <span class="valor-balistica" id="valor-gravedad">115</span>
         </div>
       </div>
       <div id="panel-controles">
-        <h2 class="titulo-panel">CONTROLES</h2>
+        <h2 class="titulo-panel">CONTROLS</h2>
         <table class="tabla-controles">
-          <tr><td class="tecla">Ratón</td><td>Mover mira</td></tr>
-          <tr><td class="tecla">Click</td><td>Disparar</td></tr>
-          <tr><td class="tecla">Rueda</td><td>Zoom ±</td></tr>
-          <tr><td class="tecla">Espacio</td><td>Disparar</td></tr>
-          <tr><td class="tecla">R</td><td>Limpiar impacto</td></tr>
+          <tr><td class="tecla">Mouse</td><td>Move scope</td></tr>
+          <tr><td class="tecla">Click</td><td>Shoot</td></tr>
+          <tr><td class="tecla">Scroll</td><td>Zoom ±</td></tr>
+          <tr><td class="tecla">Space</td><td>Shoot</td></tr>
+          <tr><td class="tecla">R</td><td>Clear impact</td></tr>
         </table>
       </div>
       <div id="pie-panel">
         <span>Sniper Color Picker v1.0</span>
-        <span>Una herramienta de Adobe™</span>
+        <span>An Adobe™ tool</span>
       </div>
     </div>
   </div>
-  <div id="notificacion-copiado">¡Copiado!</div>
+  <div id="notificacion-copiado">Copied!</div>
   <script src="app.js"></script>
 </body>
 </html>

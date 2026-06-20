@@ -695,14 +695,12 @@
     if (color) {
       estado.colorSeleccionado = color;
       actualizarPanelColor(color);
-    } else if (formatoAcertado && estado.colorSeleccionado) {
-      actualizarPanelColor(estado.colorSeleccionado);
     } else {
       actualizarPanelSinColor();
     }
 
     actualizarPanelBalistica();
-    elDisparos.textContent = 'Disparos: ' + estado.contadorDisparos;
+    elDisparos.textContent = 'Shots: ' + estado.contadorDisparos;
   }
 
   function ruedaAPantalla(rx, ry) {
@@ -774,14 +772,14 @@
       !estado.formatosBloqueados.rgb &&
       !estado.formatosBloqueados.hsl;
     if (todosDesbloqueados) {
-      elAcierto.textContent = `✓ Todos los formatos — (${Math.round(estado.impactoX - CONST.CENTRO_RUEDA)}, ${Math.round(estado.impactoY - CONST.CENTRO_RUEDA)})`;
+      elAcierto.textContent = `✓ All formats — (${Math.round(estado.impactoX - CONST.CENTRO_RUEDA)}, ${Math.round(estado.impactoY - CONST.CENTRO_RUEDA)})`;
       elAcierto.style.color = '#0f0';
     } else {
       const bloqueados = [];
       if (estado.formatosBloqueados.hex) bloqueados.push('HEX');
       if (estado.formatosBloqueados.rgb) bloqueados.push('RGB');
       if (estado.formatosBloqueados.hsl) bloqueados.push('HSL');
-      elAcierto.textContent = `🔫 Dispara a: ${bloqueados.join(' · ')}`;
+      elAcierto.textContent = ` Shoot at: ${bloqueados.join(' · ')}`;
       elAcierto.style.color = '#f80';
     }
   }
@@ -791,7 +789,7 @@
     elHex.textContent = '—';
     elRgb.textContent = '—';
     elHsl.textContent = '—';
-    elAcierto.textContent = '¡Falló! Fuera de la rueda';
+    elAcierto.textContent = 'Missed! Outside the wheel';
     elAcierto.style.color = '#f44';
     aplicarBloqueosUI();
   }
@@ -852,7 +850,7 @@
     elRgb.textContent = '???';
     elHsl.textContent = '???';
     document.querySelectorAll('.btn-copiar').forEach(b => b.disabled = true);
-    elAcierto.textContent = 'Esperando disparo...';
+    elAcierto.textContent = 'Waiting for shot...';
     elAcierto.style.color = '#666';
   }
 
@@ -981,7 +979,7 @@
 
   function inicializar() {
     console.log('🔭 Sniper Color Picker v1.0');
-    console.log('  "Una herramienta de Adobe™"');
+    console.log('  "An Adobe™ tool"');
 
     generarRuedaCromatica();
     redimensionarCanvas();
@@ -997,7 +995,7 @@
 
     limpiarImpacto();
     actualizarPanelBalistica();
-    elDisparos.textContent = 'Disparos: 0';
+    elDisparos.textContent = 'Shots: 0';
 
     buclePrincipal();
   }
